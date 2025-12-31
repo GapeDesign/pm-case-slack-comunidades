@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Slack - Parte 4: Priorização Completa</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slack: {
+                            purple: '#4A154B',
+                            aubergine: '#350d36',
+                            blue: '#36C5F0',
+                            green: '#2EB67D',
+                            red: '#E01E5A',
+                            yellow: '#ECB22E',
+                            gray: '#1d1c1d'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 0 0 1px rgba(29, 28, 29, 0.13), 0 4px 12px 0 rgba(0, 0, 0, 0.12)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Lato', sans-serif; background-color: #f4ede4; color: #1d1c1d; }
+        .section-title { font-size: 1.875rem; font-weight: 900; color: #1d1c1d; margin-bottom: 2rem; position: relative; display: inline-block; }
+        .section-title::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 40px; height: 4px; border-radius: 2px; }
+        
+        /* Transitions for Accordion */
+        .us-details { transition: all 0.4s ease-in-out; overflow: hidden; max-height: 0; opacity: 0; }
+        .us-details.open { max-height: 3000px; opacity: 1; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; }
+        .chevron { transition: transform 0.3s; }
+        .chevron.rotate { transform: rotate(180deg); }
+
+        /* Custom Tooltip Styling */
+        .tooltip-trigger:hover .tooltip-content {
+            display: block;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px) translateX(-50%); }
+            to { opacity: 1; transform: translateY(0) translateX(-50%); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="fixed w-full z-50 bg-slack-aubergine text-white border-b border-white/10 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" alt="Slack Logo" class="w-6 h-6">
+                    <span class="font-bold text-lg tracking-tight">Case Slack: Parte 4</span>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a href="index.html" class="hover:text-slack-blue transition">Parte 1</a>
+                    <a href="2.html" class="hover:text-slack-blue transition">Parte 2</a>
+                    <a href="3.html" class="hover:text-slack-blue transition">Parte 3</a>
+                    <a href="4.html" class="hover:text-slack-red transition">Parte 4</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-white pt-32 pb-16 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+        <div class="max-w-5xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slack-red/10 text-slack-red text-xs font-bold uppercase tracking-wider mb-6">
+                Delivery
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-slack-gray leading-tight mb-6">
+                Priorização e <br>
+                <span class="text-slack-red">Roadmap Tático</span>
+            </h1>
+            <p class="text-xl text-gray-600 max-w-3xl leading-relaxed">
+                Análise completa de priorização (ICE), planejamento das primeiras releases e detalhamento técnico das User Stories.
+            </p>
+        </div>
+    </header>
+
+    <section id="ice-score" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title after:bg-slack-blue">1. Matriz de Priorização (ICE Score)</h2>
+            <p class="text-gray-600 mb-8 max-w-3xl">
+                Lista completa de oportunidades pontuadas por Impacto, Confiança e Esforço. A ordenação definiu o corte das Sprints.
+            </p>
+
+            <div class="bg-white rounded-xl shadow-card overflow-hidden border border-gray-200 mb-8">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+                            <tr>
+                                <th class="px-6 py-4">Item (Funcionalidade)</th>
+                                <th class="px-4 py-4 text-center">Impacto</th>
+                                <th class="px-4 py-4 text-center">Confiança</th>
+                                <th class="px-4 py-4 text-center">Esforço</th>
+                                <th class="px-4 py-4 text-center text-slack-aubergine font-black text-base">ICE</th>
+                                <th class="px-6 py-4 text-center">Status / Release</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr class="bg-green-50/60 hover:bg-green-100 transition">
+                                <td class="px-6 py-4 font-bold text-gray-900">1. Template Eventos ao Vivo (Completo)</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center font-bold text-green-700 text-lg">15</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-green-200 text-green-800 rounded-full text-xs font-bold">Sprint 1 (MVP)</span></td>
+                            </tr>
+                            <tr class="bg-green-50/60 hover:bg-green-100 transition">
+                                <td class="px-6 py-4 font-bold text-gray-900">3. Criação de Evento</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center font-bold text-green-700 text-lg">13</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-green-200 text-green-800 rounded-full text-xs font-bold">Sprint 1 (MVP)</span></td>
+                            </tr>
+                            
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-medium text-gray-700">2. Template Estudos</td>
+                                <td class="px-4 py-4 text-center">4</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center font-bold text-gray-500">12</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold">Sprint 3 (Expansão)</span></td>
+                            </tr>
+                            
+                            <tr class="bg-green-50/60 hover:bg-green-100 transition">
+                                <td class="px-6 py-4 font-bold text-gray-900">4. Participação no Evento</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center">2</td>
+                                <td class="px-4 py-4 text-center font-bold text-green-700 text-lg">12</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-green-200 text-green-800 rounded-full text-xs font-bold">Sprint 1 (MVP)</span></td>
+                            </tr>
+
+                            <tr class="bg-blue-50/40 hover:bg-blue-50 transition">
+                                <td class="px-6 py-4 font-medium text-gray-900">5. Divulgação de evento em canais</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center">5</td>
+                                <td class="px-4 py-4 text-center">2</td>
+                                <td class="px-4 py-4 text-center font-bold text-blue-600">10</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">Sprint 2</span></td>
+                            </tr>
+                            <tr class="bg-blue-50/40 hover:bg-blue-50 transition">
+                                <td class="px-6 py-4 font-medium text-gray-900">7. Convite inicial interno</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center">4</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center font-bold text-blue-600">10</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">Sprint 2</span></td>
+                            </tr>
+                            <tr class="bg-blue-50/40 hover:bg-blue-50 transition">
+                                <td class="px-6 py-4 font-medium text-gray-900">8. Link da comunidade</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center">2</td>
+                                <td class="px-4 py-4 text-center font-bold text-blue-600">8</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">Sprint 2</span></td>
+                            </tr>
+                             <tr class="bg-blue-50/40 hover:bg-blue-50 transition">
+                                <td class="px-6 py-4 font-medium text-gray-900">6. Tour visual para admins</td>
+                                <td class="px-4 py-4 text-center">2</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center">3</td>
+                                <td class="px-4 py-4 text-center font-bold text-blue-600">8</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">Sprint 2</span></td>
+                            </tr>
+                            
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-medium text-gray-500">9. Estímulo recorrente ao admin</td>
+                                <td class="px-4 py-4 text-center">2</td>
+                                <td class="px-4 py-4 text-center">2</td>
+                                <td class="px-4 py-4 text-center">2</td>
+                                <td class="px-4 py-4 text-center font-bold text-gray-400">6</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-xs font-bold">Backlog</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-card border border-gray-200 overflow-hidden">
+                <button onclick="toggleRational()" class="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-slack-purple/10 p-2 rounded-lg">
+                            <i data-lucide="book-open" class="w-5 h-5 text-slack-purple"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg">Entenda o Racional do ICE</h3>
+                            <p class="text-sm text-gray-500">Definições, escalas e justificativas detalhadas por item</p>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-down" id="icon-rational" class="chevron text-gray-400 w-5 h-5"></i>
+                </button>
+
+                <div id="rational-content" class="hidden border-t border-gray-200">
+                    <div class="p-6 md:p-8 space-y-8">
+                        
+                        <div>
+                            <h4 class="text-sm font-black uppercase tracking-wider text-slack-aubergine mb-3 flex items-center gap-2">
+                                <i data-lucide="layers" class="w-4 h-4"></i> 1. Definição dos Itens
+                            </h4>
+                            <div class="text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <p class="mb-2">Foi definido que cada item da ICE deveria representar uma <strong>unidade real de entrega</strong>, ou seja, algo que pudesse ser construído e utilizado pelo usuário final de forma concreta.</p>
+                                <p class="mb-2">Por esse motivo, funcionalidades que só fazem sentido quando entregues em conjunto foram consolidadas:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-2 text-gray-600">
+                                    <li>O <strong>template de comunidade</strong> e sua estrutura automática foram tratados como um único item.</li>
+                                    <li>A <strong>criação de evento</strong> foi mantida separada por ser uma capacidade reutilizável.</li>
+                                    <li>A <strong>participação no evento</strong> foi mantida separada por representar o momento de ativação do valor.</li>
+                                </ul>
+                                <p class="mt-2 text-xs text-gray-500 italic">Essa definição evitou que esforço e impacto ficassem diluídos artificialmente.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-black uppercase tracking-wider text-slack-aubergine mb-4 flex items-center gap-2">
+                                <i data-lucide="bar-chart-2" class="w-4 h-4"></i> 2. Escalas Utilizadas (1-5)
+                            </h4>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                    <h5 class="font-bold text-blue-600 mb-2">Impacto</h5>
+                                    <p class="text-xs text-gray-500 mb-3">Contribuição para a proposta de valor.</p>
+                                    <ul class="text-xs space-y-2">
+                                        <li><strong class="text-gray-900">5:</strong> Essencial para o MVP / Gera valor.</li>
+                                        <li><strong class="text-gray-900">3:</strong> Importante, mas não crítico.</li>
+                                        <li><strong class="text-gray-900">1-2:</strong> Melhoria incremental.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                    <h5 class="font-bold text-green-600 mb-2">Confiança</h5>
+                                    <p class="text-xs text-gray-500 mb-3">Previsibilidade baseada em padrões.</p>
+                                    <ul class="text-xs space-y-2">
+                                        <li><strong class="text-gray-900">5:</strong> Padrão amplamente conhecido.</li>
+                                        <li><strong class="text-gray-900">3:</strong> Hipótese plausível.</li>
+                                        <li><strong class="text-gray-900">1-2:</strong> Incerto / Experimental.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                    <h5 class="font-bold text-red-600 mb-2">Esforço</h5>
+                                    <p class="text-xs text-gray-500 mb-3">Custo relativo de implementação.</p>
+                                    <ul class="text-xs space-y-2">
+                                        <li><strong class="text-gray-900">5:</strong> Alta complexidade técnica.</li>
+                                        <li><strong class="text-gray-900">1:</strong> Baixo esforço / Simples.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-center text-xs text-gray-500">
+                                <strong>Cálculo:</strong> ICE = Impacto + Confiança + Esforço (Objetivo: Ordenar prioridades, não gerar métrica absoluta).
+                            </div>
+                        </div>
+
+                        <hr class="border-gray-100">
+
+                        <div>
+                            <h4 class="text-sm font-black uppercase tracking-wider text-slack-aubergine mb-4 flex items-center gap-2">
+                                <i data-lucide="list" class="w-4 h-4"></i> Racional de pontuação por item
+                            </h4>
+                            <p class="text-xs text-gray-500 mb-4">Passe o mouse sobre o ícone <i data-lucide="info" class="w-3 h-3 inline"></i> para ver os detalhes.</p>
+                            
+                            <div class="grid md:grid-cols-2 gap-y-3 gap-x-8">
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                    <span class="font-bold text-sm text-gray-800">Template “Eventos ao Vivo”</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-slack-blue hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-green-300 mb-1 border-b border-gray-700 pb-1">Impacto 5</div>
+                                            <p class="mb-2">Núcleo da proposta de valor da primeira release.</p>
+                                            <div class="font-bold text-green-300 mb-1 border-b border-gray-700 pb-1">Confiança 5</div>
+                                            <p class="mb-2">Padrão consolidado em ambientes corporativos.</p>
+                                            <div class="font-bold text-red-300 mb-1 border-b border-gray-700 pb-1">Esforço 5</div>
+                                            <p class="mb-2">Envolve criação de comunidade, estrutura e permissões.</p>
+                                            <p class="italic text-gray-400 mt-2">Maior ICE: Habilita todos os fluxos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                    <span class="font-bold text-sm text-gray-800">Criação de evento</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-slack-blue hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-green-300 mb-1 border-b border-gray-700 pb-1">Impacto 5</div>
+                                            <p class="mb-2">Permite a existência de eventos agendados.</p>
+                                            <div class="font-bold text-green-300 mb-1 border-b border-gray-700 pb-1">Confiança 5</div>
+                                            <p class="mb-2">Comportamento universal.</p>
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Esforço 3</div>
+                                            <p class="mb-2">Formulário, validações e persistência (complexidade controlada).</p>
+                                            <p class="italic text-gray-400 mt-2">Essencial para o funcionamento do MVP.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                    <span class="font-bold text-sm text-gray-800">Participação no evento</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-slack-blue hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-green-300 mb-1 border-b border-gray-700 pb-1">Impacto 5</div>
+                                            <p class="mb-2">Momento em que o usuário percebe valor real.</p>
+                                            <div class="font-bold text-green-300 mb-1 border-b border-gray-700 pb-1">Confiança 5</div>
+                                            <p class="mb-2">Chamadas ao vivo são previsíveis.</p>
+                                            <div class="font-bold text-blue-300 mb-1 border-b border-gray-700 pb-1">Esforço 2</div>
+                                            <p class="mb-2">Reduzido após remoção do chat pré-evento.</p>
+                                            <p class="italic text-gray-400 mt-2">Fecha o ciclo principal de valor.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                    <span class="font-bold text-sm text-gray-800">Template “Estudos”</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-gray-400 hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-blue-300 mb-1 border-b border-gray-700 pb-1">Impacto 4</div>
+                                            <p class="mb-2">Segundo caso de uso, relevante mas não central agora.</p>
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Confiança 3</div>
+                                            <p class="mb-2">Engajamento varia muito conforme o contexto.</p>
+                                            <div class="font-bold text-red-300 mb-1 border-b border-gray-700 pb-1">Esforço 5</div>
+                                            <p class="mb-2">Exige estrutura completa similar ao de eventos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                    <span class="font-bold text-sm text-gray-800">Divulgação em canais</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-gray-400 hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Impacto 3</div>
+                                            <p class="mb-2">Amplia alcance, mas não cria valor do zero.</p>
+                                            <div class="font-bold text-green-300 mb-1 border-b border-gray-700 pb-1">Confiança 5</div>
+                                            <p class="mb-2">Padrão consolidado de divulgação.</p>
+                                            <div class="font-bold text-blue-300 mb-1 border-b border-gray-700 pb-1">Esforço 2</div>
+                                            <p class="mb-2">Automação simples.</p>
+                                            <p class="italic text-gray-400 mt-2">Multiplicador de participação.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                    <span class="font-bold text-sm text-gray-800">Convite inicial interno</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-gray-400 hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Impacto 3</div>
+                                            <p class="mb-2">Acelera crescimento da comunidade.</p>
+                                            <div class="font-bold text-blue-300 mb-1 border-b border-gray-700 pb-1">Confiança 4</div>
+                                            <p class="mb-2">Boa previsibilidade.</p>
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Esforço 3</div>
+                                            <p class="mb-2">Envolve permissões e UX sensível.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                    <span class="font-bold text-sm text-gray-800">Tour visual para admins</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-gray-400 hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-red-300 mb-1 border-b border-gray-700 pb-1">Impacto 2</div>
+                                            <p class="mb-2">Não altera o core do MVP.</p>
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Confiança 3</div>
+                                            <p class="mb-2">Ajuda, mas não garante ativação.</p>
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Esforço 3</div>
+                                            <p class="mb-2">Envolve tooltips, persistência e UI.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                                    <span class="font-bold text-sm text-gray-800">Link da comunidade</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-gray-400 hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Impacto 3</div>
+                                            <p class="mb-2">Facilita compartilhamento.</p>
+                                            <div class="font-bold text-yellow-300 mb-1 border-b border-gray-700 pb-1">Confiança 3</div>
+                                            <p class="mb-2">Depende do comportamento do admin.</p>
+                                            <div class="font-bold text-blue-300 mb-1 border-b border-gray-700 pb-1">Esforço 2</div>
+                                            <p class="mb-2">Implementação simples.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100 opacity-60">
+                                    <span class="font-bold text-sm text-gray-800">Estímulo recorrente ao admin</span>
+                                    <div class="tooltip-trigger relative group cursor-help">
+                                        <i data-lucide="info" class="w-5 h-5 text-gray-400 hover:text-slack-aubergine transition"></i>
+                                        <div class="tooltip-content hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-lg p-3 z-20 shadow-xl">
+                                            <div class="font-bold text-red-300 mb-1 border-b border-gray-700 pb-1">Impacto 2</div>
+                                            <p class="mb-2">Não gera engajamento sozinho.</p>
+                                            <div class="font-bold text-red-300 mb-1 border-b border-gray-700 pb-1">Confiança 2</div>
+                                            <p class="mb-2">Alto risco de ruído.</p>
+                                            <div class="font-bold text-blue-300 mb-1 border-b border-gray-700 pb-1">Esforço 2</div>
+                                            <p class="mb-2">Viável, mas incerto.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+    </section>
+
+    <section id="sprints" class="py-20 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title after:bg-slack-yellow">2. Planejamento de Sprints</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="border-2 border-green-500 rounded-xl p-6 relative bg-white shadow-lg">
+                    <div class="absolute -top-4 left-6 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wide">
+                        Sprint 1 (Atual)
+                    </div>
+                    <h3 class="mt-4 text-xl font-bold text-gray-900 mb-2">Comunidade de Eventos ao Vivo (MVP)</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        <strong>Objetivo:</strong> Entregar uma comunidade de Eventos ao Vivo funcional de ponta a ponta, permitindo criar a comunidade, criar eventos e participar deles, validando o principal caso de uso do produto.
+                    </p>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4 text-green-600"></i> Template Eventos ao vivo (5 pts)</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4 text-green-600"></i> Criação de evento (3 pts)</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4 text-green-600"></i> Participação no evento (2 pts)</li>
+                    </ul>
+                </div>
+
+                <div class="border border-gray-200 rounded-xl p-6 relative bg-gray-50 hover:border-blue-300 transition group">
+                    <div class="absolute -top-4 left-6 bg-gray-600 text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wide group-hover:bg-blue-600 transition">
+                        Sprint 2 (Próxima)
+                    </div>
+                    <h3 class="mt-4 text-xl font-bold text-gray-900 mb-2">Descoberta, alcance e expansão</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        <strong>Objetivo:</strong> Aumentar a descoberta dos eventos e facilitar o crescimento inicial das comunidades, mantendo o foco no modelo de eventos.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center gap-2"><i data-lucide="arrow-right-circle" class="w-4 h-4 text-blue-500"></i> Divulgação de evento em canais (2 pts)</li>
+                        <li class="flex items-center gap-2"><i data-lucide="arrow-right-circle" class="w-4 h-4 text-blue-500"></i> Convite inicial interno (3 pts)</li>
+                        <li class="flex items-center gap-2"><i data-lucide="arrow-right-circle" class="w-4 h-4 text-blue-500"></i> Tour visual para administradores (3 pts)</li>
+                        <li class="flex items-center gap-2"><i data-lucide="arrow-right-circle" class="w-4 h-4 text-blue-500"></i> Link da comunidade (2 pts)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="delivery" class="py-20 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title after:bg-slack-red">3. User Stories da Sprint 1</h2>
+            <p class="text-gray-600 mb-8">Clique nos cartões para visualizar os critérios de aceite e as tarefas técnicas de desenvolvimento.</p>
+
+            <div class="grid gap-6">
+                
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer" onclick="toggleDetails('us1')">
+                    <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="bg-slack-red/10 text-slack-red px-2 py-1 rounded text-xs font-bold uppercase">US-01</span>
+                                <span class="text-xs font-bold text-gray-400">5 Pontos</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900">User Story 1 — Criar comunidade usando o template “Eventos ao Vivo”</h3>
+                            <p class="text-gray-600 mt-1 text-sm">Criar um template específico para eventos que reduz fricção e garante estrutura.</p>
+                        </div>
+                        <i data-lucide="chevron-down" id="icon-us1" class="chevron text-gray-400 w-6 h-6"></i>
+                    </div>
+                    
+                    <div id="us1" class="us-details px-6 pb-6 bg-gray-50">
+                        <div class="space-y-8">
+                            
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-2">Contexto</h4>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Líderes que desejam organizar eventos recorrentes no Slack enfrentam dificuldade para estruturar uma comunidade desde o início. A ausência de uma estrutura clara gera confusão, retrabalho e baixa adoção. Um template específico para eventos reduz fricção e garante que a comunidade já nasça preparada para esse tipo de uso.
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-2">O que faremos</h4>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Criar um template completo de comunidade chamado “Eventos ao Vivo”, que encapsula toda a lógica necessária para que uma comunidade voltada a eventos exista e funcione desde o primeiro acesso.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-3">Fluxo do Usuário</h4>
+                                <ol class="list-decimal list-inside text-sm text-gray-700 space-y-1 bg-white p-4 rounded border border-gray-200">
+                                    <li>Usuário acessa a ação “Criar comunidade”.</li>
+                                    <li>Sistema apresenta a opção de template “Eventos ao Vivo” com descrição do seu propósito.</li>
+                                    <li>Usuário seleciona o template e confirma a criação.</li>
+                                    <li>Sistema cria a comunidade e associa o usuário como administrador.</li>
+                                    <li>Sistema cria automaticamente a estrutura necessária para eventos, incluindo:
+                                        <ul class="list-disc list-inside pl-4 mt-1 text-gray-600">
+                                            <li>canal global</li>
+                                            <li>canais temáticos</li>
+                                        </ul>
+                                    </li>
+                                    <li>Sistema define o canal global como canal inicial.</li>
+                                    <li>Usuário é redirecionado para dentro da comunidade criada, já com todos os canais disponíveis.</li>
+                                </ol>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="font-bold text-sm text-blue-700 uppercase mb-3">Proposta de Solução (Como)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Criar um fluxo transacional de criação de comunidade.</li>
+                                        <li>Associar a comunidade ao tipo “Eventos ao Vivo”.</li>
+                                        <li>Criar canais automaticamente via APIs do Slack.</li>
+                                        <li>Definir permissões administrativas para o criador.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-500 uppercase mb-3">DoR (Definition of Ready)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Definição dos canais do template “Eventos ao Vivo”.</li>
+                                        <li>Definição dos textos de descrição do template.</li>
+                                        <li>Definição do ponto de entrada “Criar comunidade”.</li>
+                                        <li>Proposta técnica de criação e rollback.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8 pt-4 border-t border-gray-200">
+                                <div>
+                                    <h4 class="font-bold text-sm text-green-700 uppercase mb-3 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Critério de Aceite (DoD)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Usuário consegue criar uma comunidade usando o template “Eventos ao Vivo”.</li>
+                                        <li>A comunidade criada possui todos os canais esperados.</li>
+                                        <li>O criador entra automaticamente como administrador.</li>
+                                        <li>O canal global é exibido como canal inicial.</li>
+                                        <li>A comunidade está pronta para criação de eventos sem configuração adicional.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-red uppercase mb-3 flex items-center gap-2"><i data-lucide="code" class="w-4 h-4"></i> Tarefas do Squad</h4>
+                                    <div class="space-y-4 text-sm">
+                                        <div>
+                                            <span class="font-bold text-pink-700 bg-pink-50 px-2 py-0.5 rounded">UX</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Desenhar a tela de escolha do template</li>
+                                                <li>Definir microcopy do template</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 1</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Implementar criação da comunidade</li>
+                                                <li>Definir permissões do admin</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 2</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Implementar criação automática dos canais</li>
+                                                <li>Garantir ordem e consistência da criação</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 3</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Implementar redirecionamento e estado final do fluxo</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer" onclick="toggleDetails('us2')">
+                    <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="bg-slack-red/10 text-slack-red px-2 py-1 rounded text-xs font-bold uppercase">US-02</span>
+                                <span class="text-xs font-bold text-gray-400">3 Pontos</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900">User Story 2 — Administrador cria um evento na comunidade</h3>
+                            <p class="text-gray-600 mt-1 text-sm">Permitir que admins criem eventos com data e hora para organização.</p>
+                        </div>
+                        <i data-lucide="chevron-down" id="icon-us2" class="chevron text-gray-400 w-6 h-6"></i>
+                    </div>
+                    
+                    <div id="us2" class="us-details px-6 pb-6 bg-gray-50">
+                        <div class="space-y-8">
+                             <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-2">Contexto</h4>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Para que uma comunidade de eventos gere valor real, administradores precisam conseguir criar eventos com data e hora definidas, permitindo organização e previsibilidade para os participantes.
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-2">O que faremos</h4>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Permitir que administradores criem eventos associados à comunidade de Eventos ao Vivo, com informações básicas de agenda.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-3">Fluxo do Usuário</h4>
+                                <ol class="list-decimal list-inside text-sm text-gray-700 space-y-1 bg-white p-4 rounded border border-gray-200">
+                                    <li>Administrador acessa a comunidade.</li>
+                                    <li>Administrador seleciona a ação “Criar evento”.</li>
+                                    <li>Sistema exibe um formulário com:
+                                        <ul class="list-disc list-inside pl-4 mt-1 text-gray-600">
+                                            <li>título</li>
+                                            <li>subtítulo</li>
+                                            <li>data</li>
+                                            <li>hora</li>
+                                        </ul>
+                                    </li>
+                                    <li>Administrador preenche os campos e confirma.</li>
+                                    <li>Sistema valida os dados informados.</li>
+                                    <li>Sistema cria o evento associado à comunidade com status “agendado”.</li>
+                                    <li>Sistema exibe a tela de detalhes do evento criado.</li>
+                                </ol>
+                            </div>
+
+                             <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="font-bold text-sm text-blue-700 uppercase mb-3">Proposta de Solução (Como)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Criar entidade de evento vinculada à comunidade.</li>
+                                        <li>Persistir dados de evento e seu estado.</li>
+                                        <li>Expor evento para leitura por membros da comunidade.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-500 uppercase mb-3">DoR (Definition of Ready)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Definição do modelo de dados do evento.</li>
+                                        <li>Definição das validações de data e hora.</li>
+                                        <li>Definição do local da ação “Criar evento”.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8 pt-4 border-t border-gray-200">
+                                <div>
+                                    <h4 class="font-bold text-sm text-green-700 uppercase mb-3 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Critério de Aceite (DoD)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Administrador consegue criar eventos com data e hora.</li>
+                                        <li>Eventos permanecem salvos após recarregar a página.</li>
+                                        <li>Eventos ficam visíveis para membros da comunidade.</li>
+                                        <li>Evento possui estado “agendado”.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-red uppercase mb-3 flex items-center gap-2"><i data-lucide="code" class="w-4 h-4"></i> Tarefas do Squad</h4>
+                                    <div class="space-y-4 text-sm">
+                                        <div>
+                                            <span class="font-bold text-pink-700 bg-pink-50 px-2 py-0.5 rounded">UX</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Desenhar formulário de criação do evento</li>
+                                                <li>Definir layout da tela de detalhes</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 1</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Implementar criação e persistência do evento</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 2</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Implementar leitura e exibição de eventos</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 3</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Implementar navegação e redirecionamento</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer" onclick="toggleDetails('us3')">
+                    <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="bg-slack-red/10 text-slack-red px-2 py-1 rounded text-xs font-bold uppercase">US-03</span>
+                                <span class="text-xs font-bold text-gray-400">2 Pontos</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900">User Story 3 — Usuário participa de um evento ao vivo</h3>
+                            <p class="text-gray-600 mt-1 text-sm">Permitir entrada na chamada diretamente pelo card do evento no horário correto.</p>
+                        </div>
+                        <i data-lucide="chevron-down" id="icon-us3" class="chevron text-gray-400 w-6 h-6"></i>
+                    </div>
+                    
+                    <div id="us3" class="us-details px-6 pb-6 bg-gray-50">
+                        <div class="space-y-8">
+                             <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-2">Contexto</h4>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Eventos só validam a proposta de valor quando os usuários conseguem participar efetivamente, entrando na chamada no horário definido de forma simples e confiável.
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-2">O que faremos</h4>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Permitir que membros da comunidade participem de eventos ao vivo, entrando diretamente na chamada no horário do evento.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="font-bold text-sm text-slack-aubergine uppercase mb-3">Fluxo do Usuário</h4>
+                                <ol class="list-decimal list-inside text-sm text-gray-700 space-y-1 bg-white p-4 rounded border border-gray-200">
+                                    <li>Usuário acessa a tela de detalhes do evento.</li>
+                                    <li>Antes do horário do evento, o sistema exibe informações básicas do evento.</li>
+                                    <li>No horário do evento, o sistema habilita a ação “Entrar no evento”.</li>
+                                    <li>Usuário clica na ação e entra na chamada nativa do Slack.</li>
+                                    <li>Durante o evento, o usuário permanece na chamada até sair manualmente ou o evento ser encerrado.</li>
+                                </ol>
+                            </div>
+
+                             <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="font-bold text-sm text-blue-700 uppercase mb-3">Proposta de Solução (Como)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Integrar a entrada do evento com chamadas nativas do Slack.</li>
+                                        <li>Controlar o estado do evento com base no horário configurado.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-500 uppercase mb-3">DoR (Definition of Ready)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Definição da regra de início do evento.</li>
+                                        <li>Validação dos limites de participantes do Slack.</li>
+                                        <li>Definição do comportamento de encerramento.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8 pt-4 border-t border-gray-200">
+                                <div>
+                                    <h4 class="font-bold text-sm text-green-700 uppercase mb-3 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Critério de Aceite (DoD)</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                        <li>Usuário consegue acessar a tela do evento.</li>
+                                        <li>Usuário consegue entrar na chamada no horário correto.</li>
+                                        <li>A chamada ocorre sem dependência de ferramentas externas.</li>
+                                        <li>Evento pode ser encerrado corretamente.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slack-red uppercase mb-3 flex items-center gap-2"><i data-lucide="code" class="w-4 h-4"></i> Tarefas do Squad</h4>
+                                    <div class="space-y-4 text-sm">
+                                        <div>
+                                            <span class="font-bold text-pink-700 bg-pink-50 px-2 py-0.5 rounded">UX</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Definir estados visuais do evento (antes e durante)</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 1</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Implementar controle de estado do evento</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 2</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Implementar integração com chamadas do Slack</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Dev 3</span>
+                                            <ul class="list-disc list-inside text-gray-700 mt-1 pl-2">
+                                                <li>Testar cenários de entrada, atraso e encerramento</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg p-8 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-10">
+                    <i data-lucide="zap" class="w-32 h-32"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-2 bg-white/20 rounded-lg">
+                            <i data-lucide="plus-circle" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">Cenário Hipotético: E se tivéssemos 12 pontos?</h3>
+                    </div>
+                    
+                    <p class="text-indigo-100 text-lg mb-6 max-w-2xl">
+                        Se a capacidade da sprint fosse expandida de 10 para 12 unidades de esforço, priorizaríamos o próximo item de maior valor que cabe no "budget" adicional (+2 pts).
+                    </p>
+
+                    <div class="bg-white/10 rounded-lg p-6 border border-white/20 grid md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-200 mb-1 block">Funcionalidade Adicionada</span>
+                            <h4 class="text-xl font-bold text-white mb-2">Divulgação automática de evento em canais</h4>
+                            <p class="text-sm text-indigo-100">
+                                Permite que, ao criar um evento, um post automático seja disparado no canal #general, aumentando a visibilidade imediata sem esforço manual do admin.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-end gap-8">
+                            <div class="text-center">
+                                <span class="block text-3xl font-black">10</span>
+                                <span class="text-xs uppercase opacity-70">ICE Score</span>
+                            </div>
+                            <div class="text-center">
+                                <span class="block text-3xl font-black text-green-300">2</span>
+                                <span class="text-xs uppercase opacity-70">Esforço (Pts)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="bonus" class="py-20 bg-white border-t border-gray-200">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-l-4 border-slack-red bg-red-50 p-8 rounded-r-xl">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-slack-red"></i>
+                    Bônus: Crise de Estimativa (Inflação de 65%)
+                </h2>
+                <p class="text-gray-700 mb-6">
+                    A equipe percebeu que o esforço real é 65% maior que o estimado. O esforço original de 10pts virou ~16,5pts.
+                    <strong>Ação:</strong> Manter o objetivo (MVP), mas cortar escopo técnico (Gold Plating).
+                </p>
+
+                <div class="bg-white p-6 rounded-lg border border-red-100 shadow-sm">
+                    <h3 class="font-bold text-gray-900 mb-4">Plano de Ajuste (Passo a Passo)</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex gap-4 p-3 bg-gray-50 rounded">
+                            <div class="shrink-0 font-bold text-slack-red text-lg">1. Template</div>
+                            <div class="text-sm text-gray-700">Removemos a criação de múltiplos canais complexos. Focamos em criar <strong>1 único canal global</strong> funcional. (Esforço ajustado: 5 pts).</div>
+                        </div>
+                        <div class="flex gap-4 p-3 bg-gray-50 rounded">
+                            <div class="shrink-0 font-bold text-slack-red text-lg">2. Evento</div>
+                            <div class="text-sm text-gray-700">Removemos histórico e edição. O evento é "descartável". Cria e existe. (Esforço ajustado: 3 pts).</div>
+                        </div>
+                        <div class="flex gap-4 p-3 bg-gray-50 rounded">
+                            <div class="shrink-0 font-bold text-slack-red text-lg">3. Chamada</div>
+                            <div class="text-sm text-gray-700">Removemos automação de horário. O admin inicia manualmente e usuários entram. (Esforço ajustado: 2 pts).</div>
+                        </div>
+                    </div>
+                    <p class="mt-4 font-bold text-gray-900 text-center border-t pt-4 border-gray-100">
+                        Novo Total: 10 Pontos (Viável)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slack-gray text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="mb-6 flex justify-center items-center gap-2">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" alt="Slack" class="w-8 h-8 brightness-0 invert opacity-50">
+            </div>
+            <p class="text-gray-400 text-sm mb-8">
+                Desenvolvido para o Case de Product Management da PM3.<br>
+                Focado na resolução de problemas reais de usuários e viabilidade de negócio.<br>
+                Gabriel Pereira Cavalcante • <a href="https://www.linkedin.com/in/gapedesign/" class="text-gray-400 underline hover:text-white">LinkedIn</a>
+            </p>
+            <div class="text-xs text-gray-600 pt-8 border-t border-gray-800">
+                &copy; 2024 Case Slack Vertical Comunidades.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleDetails(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('rotate');
+            } else {
+                // Close others first (optional, for accordion effect)
+                document.querySelectorAll('.us-details').forEach(el => el.classList.remove('open'));
+                document.querySelectorAll('.chevron').forEach(el => el.classList.remove('rotate'));
+
+                content.classList.add('open');
+                icon.classList.add('rotate');
+            }
+        }
+
+        // Nova função específica para o Accordion de Racional
+        function toggleRational() {
+            const content = document.getElementById('rational-content');
+            const icon = document.getElementById('icon-rational');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                // Small delay to allow transition if we were using height transition, 
+                // but here we toggle display. For consistency with main accordion visuals:
+                icon.classList.add('rotate');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate');
+            }
+        }
+    </script>
+</body>
+</html>

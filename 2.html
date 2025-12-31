@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Slack: Parte 2 - Análise e Solução</title>
+    
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slack: {
+                            purple: '#4A154B',
+                            aubergine: '#350d36',
+                            blue: '#36C5F0',
+                            green: '#2EB67D',
+                            red: '#E01E5A',
+                            yellow: '#ECB22E',
+                            gray: '#1d1c1d'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 0 0 1px rgba(29, 28, 29, 0.13), 0 4px 12px 0 rgba(0, 0, 0, 0.12)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f4ede4;
+            color: #1d1c1d;
+        }
+
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: 900;
+            color: #1d1c1d;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        /* Opportunity Tree Styles */
+        .tree-line {
+            position: absolute;
+            background-color: #e2e8f0;
+            z-index: 0;
+        }
+
+        .card-hoverable {
+            transition: all 0.2s ease-in-out;
+        }
+        .card-hoverable:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #36C5F0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+
+    
+    <nav class="fixed w-full z-50 bg-slack-aubergine text-white border-b border-white/10 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" alt="Slack Logo" class="w-6 h-6">
+                    <span class="font-bold text-lg tracking-tight">Case Slack: Parte 2</span>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a href="index.html" class="hover:text-slack-blue transition">Parte 1</a>
+                    <a href="2.html" class="hover:text-slack-blue transition">Parte 2</a>
+                    <a href="3.html" class="hover:text-slack-blue transition">Parte 3</a>
+                    <a href="4.html" class="hover:text-slack-red transition">Parte 4</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    
+    <header class="bg-white pt-32 pb-16 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+        <div class="max-w-5xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slack-green/10 text-slack-green text-xs font-bold uppercase tracking-wider mb-6">
+                Definição de Solução
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-slack-gray leading-tight mb-6">
+                Análise de Público e <br>
+                <span class="text-slack-green">Hipóteses de Solução</span>
+            </h1>
+            <p class="text-xl text-gray-600 max-w-3xl leading-relaxed">
+                Aprofundamento na escolha do "Líder Inexperiente" como alavanca de crescimento e estruturação da Árvore de Oportunidades para o MVP.
+            </p>
+        </div>
+    </header>
+
+    
+    <section id="persona" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title after:bg-slack-blue">1. A Escolha: O Líder Inexperiente</h2>
+            
+            <p class="mb-10 text-gray-700 max-w-3xl">
+                Embora o "Líder Experiente" pareça óbvio, escolhemos focar no <strong>Líder Inexperiente</strong>. Esta persona apresenta menor custo de migração e maior potencial de adoção viral dentro de empresas.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                
+                
+                <div class="bg-white rounded-xl shadow-card overflow-hidden border-l-8 border-slack-blue">
+                    <div class="p-8">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-slack-blue">
+                                <i data-lucide="sprout" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900">Líder Inexperiente</h3>
+                                <span class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Early Adopter Estratégico</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Pessoa que deseja criar um movimento ou grupo de estudos, mas trava na tecnologia e na gestão. Sente que precisa de um "guia" e não tem vícios de outras plataformas complexas.
+                        </p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">Proativo</span>
+                            <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">Inseguro tecnicamente</span>
+                            <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">Busca reconhecimento</span>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="grid gap-4">
+                    <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100 flex gap-4 items-start">
+                        <div class="mt-1 bg-green-100 p-2 rounded text-green-700"><i data-lucide="unlock" class="w-5 h-5"></i></div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Menor Resistência à Mudança</h4>
+                            <p class="text-sm text-gray-600 mt-1">Ao contrário dos experientes que já "vivem" no Discord, eles não têm legado. Começam do zero, sem fricção de migração.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100 flex gap-4 items-start">
+                        <div class="mt-1 bg-yellow-100 p-2 rounded text-yellow-700"><i data-lucide="book-open" class="w-5 h-5"></i></div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Abertura para Aprender</h4>
+                            <p class="text-sm text-gray-600 mt-1">Buscam ativamente "trilhas guiadas" e templates. O Slack pode ser o educador, criando lealdade à marca.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100 flex gap-4 items-start">
+                        <div class="mt-1 bg-purple-100 p-2 rounded text-purple-700"><i data-lucide="briefcase" class="w-5 h-5"></i></div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Ponte para o Corporativo (B2B)</h4>
+                            <p class="text-sm text-gray-600 mt-1">Muitos estão em empresas. Se aprenderem a amar o Slack na comunidade pessoal, levarão a ferramenta para o trabalho (Upsell).</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="dores" class="py-20 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title after:bg-slack-red">2. Mapa de Empatia</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                
+                <div>
+                    <div class="flex items-center gap-3 mb-8">
+                        <div class="p-2 bg-red-100 rounded text-red-600"><i data-lucide="frown" class="w-6 h-6"></i></div>
+                        <h3 class="text-2xl font-bold text-gray-900">Principais Dores</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-slack-red hover:bg-red-50 transition duration-300">
+                            <h4 class="font-bold text-gray-900 mb-2">Caos Organizacional</h4>
+                            <p class="text-gray-600 italic text-sm">"Eu crio o grupo no Zap e em dois dias ninguém acha mais nada. As mensagens importantes somem."</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-slack-red hover:bg-red-50 transition duration-300">
+                            <h4 class="font-bold text-gray-900 mb-2">Síndrome do Impostor</h4>
+                            <p class="text-gray-600 italic text-sm">"Tenho medo de ninguém interagir. Crio o grupo e fica aquele silêncio constrangedor."</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-slack-red hover:bg-red-50 transition duration-300">
+                            <h4 class="font-bold text-gray-900 mb-2">Sobrecarga Operacional</h4>
+                            <p class="text-gray-600 italic text-sm">"Queria discutir ideias, mas passo o dia aceitando gente e mandando link de reunião."</p>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div>
+                    <div class="flex items-center gap-3 mb-8">
+                        <div class="p-2 bg-green-100 rounded text-green-600"><i data-lucide="smile" class="w-6 h-6"></i></div>
+                        <h3 class="text-2xl font-bold text-gray-900">Motivações Centrais</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-slack-green hover:bg-green-50 transition duration-300">
+                            <h4 class="font-bold text-gray-900 mb-2">Espaço Seguro e Acolhedor</h4>
+                            <p class="text-gray-600 text-sm">Desejo de criar um ambiente onde as pessoas realmente troquem experiências, sem toxicidade.</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-slack-green hover:bg-green-50 transition duration-300">
+                            <h4 class="font-bold text-gray-900 mb-2">Crescimento Profissional</h4>
+                            <p class="text-gray-600 text-sm">Ser visto como uma referência ou "conector" em sua área de atuação através da liderança.</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-slack-green hover:bg-green-50 transition duration-300">
+                            <h4 class="font-bold text-gray-900 mb-2">Qualidade nas Trocas</h4>
+                            <p class="text-gray-600 text-sm">Fugir da superficialidade das redes sociais. Querem discussões profundas e estruturadas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="arvore" class="py-20 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="section-title after:bg-slack-yellow">3. Árvore de Oportunidades (Opportunity Tree)</h2>
+            <p class="mb-12 text-gray-700 max-w-4xl">
+                Conectando o resultado de negócio desejado (Outcome) às oportunidades mapeadas e as hipóteses de solução propostas.
+            </p>
+
+            
+            <div class="flex justify-center mb-16 relative">
+                <div class="bg-slack-aubergine text-white p-6 rounded-xl shadow-lg text-center max-w-md z-10 border-2 border-white">
+                    <div class="text-xs font-bold uppercase tracking-wider text-slack-blue mb-2">Outcome (Resultado Desejado)</div>
+                    <h3 class="text-xl font-bold">60% de Retenção após 6 Meses</h3>
+                    <p class="text-sm text-gray-300 mt-2">Comunidades ativas utilizando funcionalidades de engajamento.</p>
+                </div>
+                
+                <div class="absolute h-16 w-0.5 bg-gray-300 -bottom-16 left-1/2 transform -translate-x-1/2"></div>
+            </div>
+
+            
+            <div class="grid lg:grid-cols-3 gap-8 mb-16 relative">
+                
+                <div class="hidden lg:block absolute top-[-32px] left-[16%] right-[16%] h-0.5 bg-gray-300"></div>
+                <div class="hidden lg:block absolute top-[-32px] left-[16%] h-8 w-0.5 bg-gray-300"></div>
+                <div class="hidden lg:block absolute top-[-32px] left-1/2 h-8 w-0.5 bg-gray-300 transform -translate-x-1/2"></div>
+                <div class="hidden lg:block absolute top-[-32px] right-[16%] h-8 w-0.5 bg-gray-300"></div>
+
+                
+                <div class="relative flex flex-col items-center">
+                    <div class="bg-white p-6 rounded-xl shadow-card border-t-4 border-slack-blue w-full h-full card-hoverable">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded text-xs">OPORTUNIDADE 1</span>
+                        </div>
+                        <h4 class="font-bold text-gray-900 mb-2">Direcionamento de Participação</h4>
+                        <p class="text-sm text-gray-600">A ferramenta não ajuda o membro a saber como e onde contribuir, gerando dispersão.</p>
+                    </div>
+                    
+                    <div class="h-8 w-0.5 bg-gray-300 my-2"></div>
+                    
+                    
+                    <div class="w-full space-y-4">
+                        
+                        <div class="bg-white p-4 rounded border-l-4 border-gray-300 shadow-sm hover:border-slack-green transition cursor-pointer group">
+                            <h5 class="font-bold text-sm text-gray-800 group-hover:text-slack-green transition flex items-center gap-2">
+                                <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Mural de Tópicos
+                            </h5>
+                            <p class="text-xs text-gray-500 mt-1">Painel visual destacando temas quentes e quem contribui.</p>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded border-l-4 border-gray-300 shadow-sm hover:border-slack-green transition cursor-pointer group">
+                            <h5 class="font-bold text-sm text-gray-800 group-hover:text-slack-green transition flex items-center gap-2">
+                                <i data-lucide="library" class="w-4 h-4"></i> Biblioteca Comunitária
+                            </h5>
+                            <p class="text-xs text-gray-500 mt-1">Repositório de links/docs com curadoria e votação.</p>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded border-l-4 border-gray-300 shadow-sm hover:border-slack-green transition cursor-pointer group">
+                            <h5 class="font-bold text-sm text-gray-800 group-hover:text-slack-green transition flex items-center gap-2">
+                                <i data-lucide="award" class="w-4 h-4"></i> Selos de Engajamento
+                            </h5>
+                            <p class="text-xs text-gray-500 mt-1">Gamificação para reconhecer membros ativos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="relative flex flex-col items-center">
+                    <div class="bg-white p-6 rounded-xl shadow-card border-t-4 border-slack-green w-full h-full card-hoverable">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-green-100 text-green-700 font-bold px-2 py-1 rounded text-xs">OPORTUNIDADE 2</span>
+                        </div>
+                        <h4 class="font-bold text-gray-900 mb-2">Falta de Know-how do Líder</h4>
+                        <p class="text-sm text-gray-600">Iniciantes travam pois não sabem o "passo a passo" operacional de criar e manter o grupo.</p>
+                    </div>
+                    
+                    <div class="h-8 w-0.5 bg-gray-300 my-2"></div>
+
+                    
+                    <div class="w-full space-y-4">
+                        
+                        <div class="bg-white p-4 rounded border-l-4 border-gray-300 shadow-sm hover:border-slack-green transition cursor-pointer group">
+                            <h5 class="font-bold text-sm text-gray-800 group-hover:text-slack-green transition flex items-center gap-2">
+                                <i data-lucide="magic-wand" class="w-4 h-4"></i> Construtor (Wizard)
+                            </h5>
+                            <p class="text-xs text-gray-500 mt-1">Setup guiado com formulário breve para gerar a estrutura ideal.</p>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded border-l-4 border-gray-300 shadow-sm hover:border-slack-green transition cursor-pointer group">
+                            <h5 class="font-bold text-sm text-gray-800 group-hover:text-slack-green transition flex items-center gap-2">
+                                <i data-lucide="trello" class="w-4 h-4"></i> Kanban de Moderação
+                            </h5>
+                            <p class="text-xs text-gray-500 mt-1">Quadro de tarefas para organizar eventos e ações dos admins.</p>
+                        </div>
+                         
+                         <div class="bg-white p-4 rounded border-l-4 border-gray-300 shadow-sm hover:border-slack-green transition cursor-pointer group">
+                            <h5 class="font-bold text-sm text-gray-800 group-hover:text-slack-green transition flex items-center gap-2">
+                                <i data-lucide="file-check" class="w-4 h-4"></i> Certificados Oficiais
+                            </h5>
+                            <p class="text-xs text-gray-500 mt-1">Recompensa para organizadores de meetups postarem no LinkedIn.</p>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="relative flex flex-col items-center">
+                    <div class="bg-white p-6 rounded-xl shadow-card border-t-4 border-slack-purple w-full h-full card-hoverable opacity-90">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-purple-100 text-purple-700 font-bold px-2 py-1 rounded text-xs">OPORTUNIDADE 3</span>
+                        </div>
+                        <h4 class="font-bold text-gray-900 mb-2">Empresas sem Estrutura</h4>
+                        <p class="text-sm text-gray-600">Empresas querem comunidades internas (guildas) mas não têm ferramentas ou incentivos.</p>
+                    </div>
+                    
+                    <div class="h-8 w-0.5 bg-gray-300 my-2"></div>
+
+                    
+                    <div class="w-full space-y-4">
+                        
+                        <div class="bg-white p-4 rounded border-l-4 border-gray-300 shadow-sm hover:border-slack-green transition cursor-pointer group">
+                            <h5 class="font-bold text-sm text-gray-800 group-hover:text-slack-green transition flex items-center gap-2">
+                                <i data-lucide="percent" class="w-4 h-4"></i> Descontos B2B
+                            </h5>
+                            <p class="text-xs text-gray-500 mt-1">Incentivo no plano Enterprise para empresas com comunidades ativas.</p>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded border-l-4 border-gray-300 shadow-sm hover:border-slack-green transition cursor-pointer group">
+                            <h5 class="font-bold text-sm text-gray-800 group-hover:text-slack-green transition flex items-center gap-2">
+                                <i data-lucide="package" class="w-4 h-4"></i> Kit Interno
+                            </h5>
+                            <p class="text-xs text-gray-500 mt-1">Integrações prontas (Miro/Teams) para grupos corporativos.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+             
+             <div class="mt-16 bg-white border border-gray-200 rounded-xl p-8 max-w-4xl mx-auto shadow-sm">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="bg-slack-green text-white p-3 rounded-full">
+                        <i data-lucide="flask-conical" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-gray-900">Exemplo de Experimento de Validação</h4>
+                        <p class="text-sm text-gray-500">Para a Solução: <span class="font-bold text-slack-green">Construtor de Comunidade (Wizard)</span></p>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 text-sm">
+                    <div>
+                        <strong class="block text-gray-900 mb-2">O que vamos medir?</strong>
+                        <ul class="space-y-2 text-gray-600 list-disc list-inside">
+                            <li>Tempo médio para completar o setup inicial.</li>
+                            <li>CSAT (Satisfação) logo após a criação.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <strong class="block text-gray-900 mb-2">Critério de Sucesso</strong>
+                        <div class="bg-green-50 p-3 rounded text-green-800 border border-green-200">
+                            "80% dos usuários completam o setup em menos de 5 minutos com nota CSAT > 4.5"
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    
+    <footer class="bg-slack-gray text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="mb-6 flex justify-center items-center gap-2">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" alt="Slack" class="w-8 h-8 brightness-0 invert opacity-50">
+            </div>
+            <p class="text-gray-400 text-sm mb-8">
+                Desenvolvido para o Case de Product Management da PM3.<br>
+                Focado na resolução de problemas reais de usuários e viabilidade de negócio.<br>
+                Gabriel Pereira Cavalcante • <a href="https://www.linkedin.com/in/gapedesign/" class="text-gray-400 underline hover:text-white">LinkedIn</a>
+            </p>
+            <div class="text-xs text-gray-600 pt-8 border-t border-gray-800">
+                &copy; 2024 Case Slack Vertical Comunidades.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
